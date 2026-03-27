@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/mustafacagri/ai-quality-gate/compare/v1.0.0...v1.0.1) (2026-03-27)
+
+
+### Bug Fixes
+
+* **ci:** add issues write permission for semantic-release github plugin ([86379d4](https://github.com/mustafacagri/ai-quality-gate/commit/86379d4056a368c7961d3314e5a339208f74c7eb))
+
 # 1.0.0 (2026-03-27)
 
 
