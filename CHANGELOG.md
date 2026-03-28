@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/mustafacagri/ai-quality-gate/compare/v1.0.3...v1.0.4) (2026-03-28)
+
+
+### Bug Fixes
+
+* missing MCP registry config and credential exclusion ([6d95b3a](https://github.com/mustafacagri/ai-quality-gate/commit/6d95b3a8d8e49fc88fe3d36b6b71d7102f2c52a0))
+
 ## [1.0.3](https://github.com/mustafacagri/ai-quality-gate/compare/v1.0.2...v1.0.3) (2026-03-28)
 
 
