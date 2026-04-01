@@ -6,6 +6,7 @@ const mockRun = vi.fn()
 
 vi.mock('@/config', () => ({
   configManager: {
+    reset: vi.fn(),
     load: vi.fn(
       (): Config => ({
         projectRoot: process.cwd(),

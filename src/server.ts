@@ -37,54 +37,58 @@ Code Quality Limits:
 
 const server = new McpServer({ name: 'ai-quality-gate', version: PACKAGE_VERSION })
 
+async function resolveWorkspaceRoot(mcpServer: McpServer): Promise<string> {
+  const { PROJECT_ROOT } = process.env
+
+  if (PROJECT_ROOT) return PROJECT_ROOT
+
+  try {
+    const result = (await mcpServer.server.request({ method: 'roots/list' }, z.any())) as { roots?: { uri: string }[] }
+
+    if (result.roots && result.roots.length > 0) {
+      const rawUri = result.roots[0]?.uri
+
+      if (rawUri) {
+        return rawUri.replace(/^file:\/\//, '')
+      }
+    }
+  } catch {
+    // Client might not support roots/list, ignore
+  }
+
+  const { detectWorkspaceRoot } = await import('@/utils/detectWorkspaceRoot')
+
+  return detectWorkspaceRoot(process.cwd())
+}
+
 server.registerTool(
   'quality_fix',
   {
     description: TOOL_DESCRIPTION,
-    inputSchema: { files: z.array(z.string()).min(1).describe('Array of file paths to check (absolute or relative to workspace)') }
+    inputSchema: {
+      files: z.array(z.string()).min(1).describe('Array of file paths to check (absolute or relative to workspace)')
+    }
   },
   async ({ files }) => {
-    const path = await import('node:path')
     const { resolveFilePath } = await import('@/utils/resolveFilePath')
-    const { detectWorkspaceRoot } = await import('@/utils/detectWorkspaceRoot')
+    const workspaceRoot = await resolveWorkspaceRoot(server)
 
-    let workspaceRoot = process.env['PROJECT_ROOT']
-
-    // Attempt to get accurate root from the MCP client to fix the Cursor 'cwd' problem
-    if (!workspaceRoot) {
-      try {
-        const result = await server.server.request({ method: 'roots/list' }, z.any()) as { roots?: { uri: string }[] }
-        if (result?.roots && result.roots.length > 0) {
-          // Normalize file:// URI to standard path
-          const rawUri = result.roots[0]?.uri
-          if (rawUri) {
-            workspaceRoot = rawUri.replace(/^file:\/\//, '')
-          }
-        }
-      } catch (e) {
-        // Client might not support roots/list, ignore
-      }
-    }
-
-    // Default fallback to the exact logic requested by the user
-    if (!workspaceRoot) {
-      workspaceRoot = detectWorkspaceRoot(process.cwd())
-    }
-    
     // Resolve all files to absolute paths
     const resolvedFiles: string[] = []
-    
+
     try {
       for (const file of files) {
         resolvedFiles.push(resolveFilePath(file, workspaceRoot))
       }
-    } catch (e) {
+    } catch (error) {
       // If auto-resolution fails, return the clear error message to the AI
       return {
-        content: [{
-          type: 'text',
-          text: e instanceof Error ? e.message : String(e)
-        }],
+        content: [
+          {
+            type: 'text',
+            text: error instanceof Error ? error.message : String(error)
+          }
+        ],
         isError: true
       }
     }

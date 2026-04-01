@@ -2,6 +2,8 @@
  * MCP quality_fix tool logic (shared with tests; no MCP transport).
  */
 
+import path from 'node:path'
+
 import { configManager } from '@/config'
 import { QualityGate } from '@/core'
 import { PHASE } from '@/constants'
@@ -39,7 +41,6 @@ export async function runQualityFixForFiles(files: string[]): Promise<QualityFix
 
     // Find the first absolute path to use as the starting directory for project root discovery
     // This allows the global MCP server to correctly identify the workspace of the passed files.
-    const path = await import('node:path')
     const firstAbsFile = codeFiles.find(f => path.isAbsolute(f))
     const startDir = firstAbsFile ? path.dirname(firstAbsFile) : process.cwd()
 

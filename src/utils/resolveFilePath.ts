@@ -4,7 +4,7 @@ import glob from 'fast-glob'
 
 /**
  * Resolves a potentially relative file path to an absolute path.
- * 
+ *
  * 1. Return immediately if already absolute
  * 2. Try resolving from the workspace root
  * 3. Try resolving from the current working directory
@@ -17,24 +17,28 @@ export function resolveFilePath(filePath: string, workspaceRoot: string): string
     if (fs.existsSync(filePath)) {
       return filePath
     }
+
     throw new Error(`Absolute path does not exist: ${filePath}`)
   }
 
   // 2. Try resolving from the workspace root
   const fromWorkspaceRoot = path.join(workspaceRoot, filePath)
+
   if (fs.existsSync(fromWorkspaceRoot)) {
     return fromWorkspaceRoot
   }
 
   // 3. Try resolving from the current working directory
   const fromCwd = path.join(process.cwd(), filePath)
+
   if (fs.existsSync(fromCwd)) {
     return fromCwd
   }
 
   // 4. Try glob pattern (for complex paths)
-  const globbed = glob.sync(filePath, { cwd: workspaceRoot, absolute: true }) || []
+  const globbed = glob.sync(filePath, { cwd: workspaceRoot, absolute: true })
   const firstMatch = globbed[0]
+
   if (globbed.length === 1 && firstMatch) {
     return firstMatch
   }
@@ -42,10 +46,9 @@ export function resolveFilePath(filePath: string, workspaceRoot: string): string
   // 5. If all fail, throw a detailed error
   throw new Error(
     `File not found: ${filePath}\n` +
-    `Searched in:\n` +
-    `  - ${fromWorkspaceRoot}\n` +
-    `  - ${fromCwd}\n` +
-    `Workspace root: ${workspaceRoot}`
+      `Searched in:\n` +
+      `  - ${fromWorkspaceRoot}\n` +
+      `  - ${fromCwd}\n` +
+      `Workspace root: ${workspaceRoot}`
   )
 }
-

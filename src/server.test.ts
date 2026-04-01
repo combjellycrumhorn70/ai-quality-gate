@@ -64,7 +64,7 @@ describe('MCP server bootstrap', () => {
 
     expect(typeof handler).toBe('function')
 
-    const out = await handler({ files: ['note.md'] })
+    const out = await handler({ files: ['package.json'] })
     const block = out.content[0]
 
     if (block === undefined) throw new Error('expected MCP text block')

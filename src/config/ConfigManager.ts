@@ -62,7 +62,7 @@ export class ConfigManager {
     const envRaw = this.readFromEnv()
     const explicit = process.env[ENV_KEYS.QUALITY_GATE_CONFIG]?.trim()
     const projectRootEnv = process.env[ENV_KEYS.PROJECT_ROOT]?.trim()
-    
+
     // Use startDir if provided, else process.cwd()
     const baseDir = startDir ? path.resolve(startDir) : process.cwd()
     const configDiscoveryStartDir = projectRootEnv ? path.resolve(projectRootEnv) : findProjectRoot(baseDir)
