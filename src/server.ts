@@ -41,9 +41,56 @@ server.registerTool(
   'quality_fix',
   {
     description: TOOL_DESCRIPTION,
-    inputSchema: { files: z.array(z.string()).min(1).describe('Array of file paths to check') }
+    inputSchema: { files: z.array(z.string()).min(1).describe('Array of file paths to check (absolute or relative to workspace)') }
   },
-  async ({ files }) => toToolResponse(await runQualityFixForFiles(files))
+  async ({ files }) => {
+    const path = await import('node:path')
+    const { resolveFilePath } = await import('@/utils/resolveFilePath')
+    const { detectWorkspaceRoot } = await import('@/utils/detectWorkspaceRoot')
+
+    let workspaceRoot = process.env['PROJECT_ROOT']
+
+    // Attempt to get accurate root from the MCP client to fix the Cursor 'cwd' problem
+    if (!workspaceRoot) {
+      try {
+        const result = await server.server.request({ method: 'roots/list' }, z.any()) as { roots?: { uri: string }[] }
+        if (result?.roots && result.roots.length > 0) {
+          // Normalize file:// URI to standard path
+          const rawUri = result.roots[0]?.uri
+          if (rawUri) {
+            workspaceRoot = rawUri.replace(/^file:\/\//, '')
+          }
+        }
+      } catch (e) {
+        // Client might not support roots/list, ignore
+      }
+    }
+
+    // Default fallback to the exact logic requested by the user
+    if (!workspaceRoot) {
+      workspaceRoot = detectWorkspaceRoot(process.cwd())
+    }
+    
+    // Resolve all files to absolute paths
+    const resolvedFiles: string[] = []
+    
+    try {
+      for (const file of files) {
+        resolvedFiles.push(resolveFilePath(file, workspaceRoot))
+      }
+    } catch (e) {
+      // If auto-resolution fails, return the clear error message to the AI
+      return {
+        content: [{
+          type: 'text',
+          text: e instanceof Error ? e.message : String(e)
+        }],
+        isError: true
+      }
+    }
+
+    return toToolResponse(await runQualityFixForFiles(resolvedFiles))
+  }
 )
 
 if (shouldUseCliMode(process.argv)) {

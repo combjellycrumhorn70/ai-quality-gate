@@ -42,10 +42,10 @@ export class ConfigManager {
    * Load and validate configuration (optional YAML/JSON file + environment variables)
    * @throws Error if validation fails
    */
-  load(): Config {
+  load(startDir?: string): Config {
     if (this.config !== null) return this.config
 
-    const merged = this.loadMergedRaw()
+    const merged = this.loadMergedRaw(startDir)
     const result = ConfigSchema.safeParse(merged)
 
     if (!result.success) throw new Error(formatConfigInvalidMessage(result.error.issues))
@@ -58,11 +58,14 @@ export class ConfigManager {
   /**
    * Merge config file (if any) with ENV; file first, then ENV overwrites defined keys.
    */
-  private loadMergedRaw(): Record<string, unknown> {
+  private loadMergedRaw(startDir?: string): Record<string, unknown> {
     const envRaw = this.readFromEnv()
     const explicit = process.env[ENV_KEYS.QUALITY_GATE_CONFIG]?.trim()
     const projectRootEnv = process.env[ENV_KEYS.PROJECT_ROOT]?.trim()
-    const configDiscoveryStartDir = projectRootEnv ? path.resolve(projectRootEnv) : findProjectRoot(process.cwd())
+    
+    // Use startDir if provided, else process.cwd()
+    const baseDir = startDir ? path.resolve(startDir) : process.cwd()
+    const configDiscoveryStartDir = projectRootEnv ? path.resolve(projectRootEnv) : findProjectRoot(baseDir)
 
     let fileRaw: Record<string, unknown> = {}
 
@@ -84,7 +87,7 @@ export class ConfigManager {
 
     const merged = mergeConfigFileWithEnv(fileRaw, envRaw)
 
-    this.ensureProjectRoot(merged)
+    this.ensureProjectRoot(merged, startDir)
 
     return merged
   }
@@ -92,7 +95,7 @@ export class ConfigManager {
   /**
    * Ensure `projectRoot` is set: env `PROJECT_ROOT`, then config merge, else walk up from cwd.
    */
-  private ensureProjectRoot(merged: Record<string, unknown>): void {
+  private ensureProjectRoot(merged: Record<string, unknown>, startDir?: string): void {
     type WithRoot = Record<string, unknown> & { projectRoot?: unknown }
     const m = merged as WithRoot
     const existing = m.projectRoot
@@ -100,8 +103,9 @@ export class ConfigManager {
     if (typeof existing === 'string' && existing.trim().length > 0) return
 
     const fromEnv = process.env[ENV_KEYS.PROJECT_ROOT]?.trim()
+    const baseDir = startDir ? path.resolve(startDir) : process.cwd()
 
-    m.projectRoot = fromEnv && fromEnv.length > 0 ? path.resolve(fromEnv) : findProjectRoot(process.cwd())
+    m.projectRoot = fromEnv && fromEnv.length > 0 ? path.resolve(fromEnv) : findProjectRoot(baseDir)
   }
 
   /**

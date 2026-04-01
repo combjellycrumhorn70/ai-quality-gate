@@ -37,7 +37,16 @@ export async function runQualityFixForFiles(files: string[]): Promise<QualityFix
 
     if (codeFiles.length === 0) return buildEmptyResponse(skippedFiles.length, skippedFiles.join(', '))
 
-    const config = configManager.load()
+    // Find the first absolute path to use as the starting directory for project root discovery
+    // This allows the global MCP server to correctly identify the workspace of the passed files.
+    const path = await import('node:path')
+    const firstAbsFile = codeFiles.find(f => path.isAbsolute(f))
+    const startDir = firstAbsFile ? path.dirname(firstAbsFile) : process.cwd()
+
+    // Reset config so different runs in the same long-lived MCP session can discover new workspaces
+    configManager.reset()
+    const config = configManager.load(startDir)
+
     const qualityGate = new QualityGate(config)
     const result = await qualityGate.run(codeFiles)
 
